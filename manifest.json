@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Playlist MP3 Converter",
+  "version": "1.0.0",
+  "description": "Extract YouTube playlist URLs and convert videos to MP3 with per-item permission inside the extension panel.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads",
+    "storage",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*.googlevideo.com/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open YouTube MP3 Converter Panel",
+    "default_popup": "sidepanel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

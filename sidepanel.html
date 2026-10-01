@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Playlist MP3 Converter</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="panel-container">
+    <!-- Top Header -->
+    <header class="panel-header">
+      <div class="header-branding">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="6" cy="18" r="3" fill="currentColor"/>
+            <circle cx="18" cy="16" r="3" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="header-titles">
+          <h1>YT Playlist MP3</h1>
+          <span class="subtitle">Extension Panel</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div id="engine-status" class="engine-badge offline" title="Click to test local companion server status">
+          <span class="status-dot"></span>
+          <span id="engine-text">Checking Engine...</span>
+        </div>
+        <button id="btn-settings-toggle" class="icon-btn" title="Converter Settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Settings Drawer (Hidden by default) -->
+    <div id="settings-drawer" class="settings-drawer hidden">
+      <div class="settings-content">
+        <h3>Converter Engine Settings</h3>
+        <div class="setting-item">
+          <label for="select-engine">Conversion Backend:</label>
+          <select id="select-engine">
+            <option value="local">Local npm Server (youtube-mp3-downloader @ localhost:4567)</option>
+            <option value="web">Built-in Direct Converter (Standalone Web Mode)</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label for="server-url">Local Server URL:</label>
+          <input type="text" id="server-url" value="http://localhost:4567" placeholder="http://localhost:4567">
+        </div>
+        <div class="setting-item">
+          <label for="audio-bitrate">Audio Bitrate:</label>
+          <select id="audio-bitrate">
+            <option value="192">192 kbps (Recommended)</option>
+            <option value="320">320 kbps (High Quality)</option>
+            <option value="128">128 kbps (Compact)</option>
+          </select>
+        </div>
+        <div class="setting-item checkbox-setting">
+          <label>
+            <input type="checkbox" id="auto-download-checkbox">
+            Automatically trigger download when conversion finishes
+          </label>
+        </div>
+        <div class="settings-actions">
+          <button id="btn-check-server" class="secondary-btn btn-sm">Test Local Server</button>
+          <button id="btn-close-settings" class="primary-btn btn-sm">Save & Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extraction Control Section -->
+    <section class="extraction-card">
+      <div class="extraction-actions">
+        <button id="btn-extract-tab" class="primary-btn pulse-glow">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Extract from Active Tab
+        </button>
+        <button id="btn-manual-toggle" class="secondary-btn" title="Paste Custom Playlist URL">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          Custom URL
+        </button>
+      </div>
+
+      <!-- Manual URL Input Bar (collapsible) -->
+      <div id="manual-url-container" class="manual-url-container hidden">
+        <div class="input-with-button">
+          <input type="url" id="input-playlist-url" placeholder="https://www.youtube.com/playlist?list=PL..." />
+          <button id="btn-fetch-url" class="primary-btn btn-sm">Fetch</button>
+        </div>
+      </div>
+
+      <!-- Active Playlist Info Banner -->
+      <div id="playlist-meta" class="playlist-meta hidden">
+        <div class="playlist-info">
+          <h2 id="playlist-title" class="truncate">Playlist Title</h2>
+          <span id="playlist-count" class="badge-count">0 Videos</span>
+        </div>
+        <button id="btn-scroll-more" class="ghost-btn btn-xs" title="Scroll active tab to load more videos">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="7 13 12 18 17 13"/>
+            <polyline points="7 6 12 11 17 6"/>
+          </svg>
+          Load More
+        </button>
+      </div>
+    </section>
+
+    <!-- Stats & Filters Bar -->
+    <div id="queue-toolbar" class="queue-toolbar hidden">
+      <div class="toolbar-stats">
+        <span class="stat-pill">Total: <strong id="stat-total">0</strong></span>
+        <span class="stat-pill approved">Approved: <strong id="stat-approved">0</strong></span>
+        <span class="stat-pill converted">Converted: <strong id="stat-converted">0</strong></span>
+      </div>
+
+      <div class="toolbar-controls">
+        <button id="btn-sequential-convert" class="action-btn-accent" title="Convert elements one-by-one, prompting for permission on each">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Step-by-Step Convert
+        </button>
+        <button id="btn-download-all" class="secondary-btn btn-sm hidden" title="Download all converted MP3s">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download All (<span id="count-download-all">0</span>)
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Permission Dialog (Item-by-Item Permission Verification) -->
+    <div id="permission-modal" class="permission-modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="shield-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3>Authorization Required</h3>
+        </div>
+        <p class="modal-desc">
+          Do you grant permission to extract and convert the following item to MP3 audio?
+        </p>
+        <div class="modal-item-preview">
+          <img id="modal-thumb" src="" alt="Thumbnail">
+          <div class="modal-item-details">
+            <h4 id="modal-title" class="truncate">Video Title</h4>
+            <span id="modal-channel">Channel Name</span>
+            <span id="modal-duration" class="pill-duration">00:00</span>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-permission-deny" class="secondary-btn">Skip Video</button>
+          <button id="btn-permission-grant" class="primary-btn btn-grant">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Grant Permission & Convert
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Queue List -->
+    <main class="queue-container">
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
+        </div>
+        <h3>No Playlist Loaded</h3>
+        <p>Open a YouTube playlist tab or paste a playlist link to extract and convert videos to MP3.</p>
+        <div class="empty-tips">
+          <span>💡 <strong>Tip:</strong> Everything is controlled strictly in this extension panel without modifying YouTube's page.</span>
+        </div>
+      </div>
+
+      <div id="video-list" class="video-list"></div>
+    </main>
+
+    <!-- Footer Notification / Status Toast -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-message">Notification message</span>
+    </div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

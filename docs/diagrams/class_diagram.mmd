@@ -1,0 +1,54 @@
+classDiagram
+    class ExtensionPanelController {
+        -Object state
+        -DOMElement elements
+        +loadSettings() void
+        +saveSettings() void
+        +checkCompanionServer() Promise~void~
+        +extractFromActiveTab() Promise~void~
+        +populatePlaylist(data) void
+        +promptPermissionModal(video) Promise~boolean~
+        +startSequentialPermissionFlow() Promise~void~
+        +executeConversion(video) Promise~void~
+        +triggerDownload(video) void
+        +toggleAudioPreview(video, btn) void
+    }
+
+    class ContentScriptExtractor {
+        +extractPlaylistData() Object
+        +cleanVideoTitle(rawTitle) String
+        +handleScrollForMore() void
+    }
+
+    class BackgroundWorker {
+        +onInstalled(details) void
+        +onMessage(request, sender, sendResponse) boolean
+        +handleDownload(url, filename) Promise~void~
+    }
+
+    class LocalConverterServer {
+        -Map activeJobs
+        -YoutubeMp3Downloader YD
+        -String downloadDir
+        +postConvert(req, res) void
+        +getStatus(req, res) void
+        +getDownload(req, res) void
+        +getFiles(req, res) void
+    }
+
+    class PlaylistItem {
+        +String id
+        +String title
+        +String url
+        +String thumbnail
+        +String duration
+        +String channel
+        +String status
+        +Number progress
+        +String downloadUrl
+    }
+
+    ExtensionPanelController --> ContentScriptExtractor : messages via chrome.tabs
+    ExtensionPanelController --> BackgroundWorker : messages via chrome.runtime
+    ExtensionPanelController --> LocalConverterServer : HTTP fetch REST API
+    ExtensionPanelController *-- PlaylistItem : manages queue of

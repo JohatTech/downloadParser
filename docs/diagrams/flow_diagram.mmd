@@ -1,0 +1,21 @@
+flowchart TD
+    A[User opens YouTube Playlist Tab] --> B[User clicks Extension Panel Icon]
+    B --> C[Extension Panel opens in Chrome Side Panel / Popup]
+    C --> D[Panel auto-detects Playlist or User clicks 'Extract from Active Tab']
+    D --> E[content.js scans DOM & ytInitialData]
+    E --> F[Extracts Video Titles, IDs, URLs, Durations, Thumbnails]
+    F --> G[Renders Video Cards in Extension Panel Queue]
+    G --> H{User selects item to convert}
+    H --> I[Extension Panel opens Permission Confirmation Modal]
+    I --> J{User grants permission for this item?}
+    J -->|No / Skip| K[Item remains skipped; queue continues]
+    J -->|Yes / Authorize| L[Audio Conversion Engine engaged]
+    L --> M{Selected Engine}
+    M -->|Local npm Server| N[POST /api/convert to youtube-mp3-downloader backend]
+    M -->|Web Direct Engine| O[Client-side audio extraction & MP3 stream transcode]
+    N --> P[Conversion completes with 192kbps MP3]
+    O --> P
+    P --> Q[Panel updates Video Card to 'Converted' state]
+    Q --> R[Display 'Download MP3' button & Audio Preview Player]
+    R --> S[User clicks Download MP3]
+    S --> T[chrome.downloads saves sanitized MP3 file locally]

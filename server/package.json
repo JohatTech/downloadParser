@@ -1,0 +1,25 @@
+{
+  "name": "youtube-mp3-downloader-server",
+  "version": "2.0.0",
+  "description": "Companion Node.js server using yt-converter for YouTube Playlist MP3 Chrome Extension",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "yt-converter": "^2.4.2"
+  },
+  "keywords": [
+    "youtube",
+    "mp3",
+    "converter",
+    "chrome-extension"
+  ],
+  "author": "",
+  "license": "MIT"
+}
